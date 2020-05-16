@@ -3,25 +3,23 @@
 #include <iostream>
 #include <sstream>
 #include <climits>
-#include <chrono>
-#include <stack>
-#include <queue>
-#include <vector>
+
 
 using namespace std;
 
 struct Vector
 {
     private:
-        int nsz { 0 };
-        int anchor { 0 };
+        int size { 0 };
+        int capacity { 0 };
         int* arr { nullptr };
 
     public:    
-        explicit Vector(int insz)
+        Vector () = default;
+        explicit Vector(int isize)
         {
-            anchor = insz;
-            arr = new int[anchor];
+            capacity = isize;
+            arr = new int[capacity];
         };
         ~Vector()
         {
@@ -29,15 +27,15 @@ struct Vector
         };
         void Vin()
         {
-            for (int i = 0; i < anchor; i++)
+            for (int i = 0; i < capacity; i++)
             {
                 arr[i] = rand() % 20;
-                nsz++;
+                size++;
             }
         };
         void Vout()
         {
-            for (int i = 0; i < nsz; i++)
+            for (int i = 0; i < size; i++)
             {
                 cout << arr[i] << " ";
             }
@@ -46,32 +44,32 @@ struct Vector
 
         void push(int k)
         {
-            if(anchor > nsz)
+            if(capacity > size)
             {
-                arr[nsz++] = k;
+                arr[size++] = k;
                 return;
             }
-            int* arrq = new int[nsz + 1];
-            for (int i = 0; i < nsz; i++)
+            int* arrq = new int[size + 1];
+            for (int i = 0; i < size; i++)
             {
                 arrq[i] = arr[i];
             }
-            arrq[nsz] = k;
-            nsz++;
+            arrq[size] = k;
+            size++;
             delete[] arr;
             arr = arrq;
         };
         void pop()
         {
-            if (nsz == 0) throw logic_error("Vector is epmty");
-            if(anchor > nsz)
+            if (size == 0) throw logic_error("Vector is epmty");
+            if(capacity > size)
             {
-                arr[nsz--] = 0;
+                arr[size--] = 0;
                 return;
             }
-            nsz--;
-            int* arrq = new int[nsz];
-            for (int i = 0; i < nsz; i++)
+            size--;
+            int* arrq = new int[size];
+            for (int i = 0; i < size; i++)
             {
                 arrq[i] = arr[i];
             }
@@ -80,16 +78,16 @@ struct Vector
         };
         int peek()
         {
-            if (nsz == 0) throw logic_error("Vector is epmty");
-            return arr[nsz - 1];
+            if (size == 0) throw logic_error("Vector is epmty");
+            return arr[size - 1];
         };
-        int count()
+        int count() const
         {
-            return nsz;
+            return size;
         };
-        int at(int index)
+        int at(int index) const
         {
-            if ((index < 0) || (index >= nsz))
+            if ((index < 0) || (index >= size))
             {
                 throw out_of_range("Out of range At()");
             }
@@ -100,7 +98,7 @@ struct Vector
         int concat()
         {
             stringstream ss;
-            for (unsigned i = 0; i < nsz; ++i)
+            for (unsigned i = 0; i < size; ++i)
                 ss << abs(arr [i]);
             int result;
             ss >> result;
@@ -108,33 +106,82 @@ struct Vector
             return result;
         };
 
-        void concatstruct(Vector *v1)
+        void concatstruct(const Vector& v1)
         {
-            for (int i = 0; i < v1->count(); i++)
-                this->push(v1->at(i));
+            for (int i = 0; i < v1.count(); i++)
+                this->push(v1.at(i));
         };
-        static Vector concatstructs(Vector *v1, Vector *v2)
+        static Vector concatstructs(const Vector& v1, const Vector& v2)
         {
             Vector concatedVector(0);
             concatedVector.concatstruct(v1);
             concatedVector.concatstruct(v2);
             return concatedVector;
         };
+
+        bool operator == (const Vector& obj) 
+        {
+            if(this->count() != obj.count()) return false;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) == obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator > (const Vector& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Vectors must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) > obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator < (const Vector& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Vectors must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) < obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator <= (const Vector& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Vectors must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) <= obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator >= (const Vector& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Vectors must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) >= obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator != (const Vector& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Vectors must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) != obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
 };
 
 struct Stack
 {
     private:
-        int msz { 0 };        
-        int anchor { 0 };
+        int size { 0 };        
+        int capacity { 0 };
         int* arr { nullptr };
     public:
-        explicit Stack(int imsz)
+        Stack () = default;
+        explicit Stack(int isize)
         {
-            anchor = imsz;
-            arr = new int[anchor];
+            capacity = isize;
+            arr = new int[capacity];
 
-            for (int i = 0; i < anchor; i++)
+            for (int i = 0; i < capacity; i++)
             {
                 arr[i] = 0;
             }
@@ -145,15 +192,15 @@ struct Stack
         };
         void Vin()
         {
-            for (int i = 0; i < anchor; i++)
+            for (int i = 0; i < capacity; i++)
             {
                 arr[i] = rand() % 20;
-                msz++;
+                size++;
             }
         };
         void Vout()
         {
-            for (int i = 0; i < msz; i++)
+            for (int i = 0; i < size; i++)
             {
                 cout << arr[i] << " ";
             }
@@ -161,32 +208,32 @@ struct Stack
         };
         void push(int k)
         {
-            if(anchor > msz)
+            if(capacity > size)
             {
-                arr[msz++] = k;
+                arr[size++] = k;
                 return;
             }
-            int* arrq = new int[msz + 1];
-            for (int i = 0; i < msz; i++)
+            int* arrq = new int[size + 1];
+            for (int i = 0; i < size; i++)
             {
                 arrq[i] = arr[i];
             }
-            arrq[msz] = k;
-            msz++;
+            arrq[size] = k;
+            size++;
             delete[] arr;
             arr = arrq;
         };
         void pop()
         {
-            if (msz == 0) throw logic_error("Stack is epmty");
-            if(anchor > msz)
+            if (size == 0) throw logic_error("Stack is epmty");
+            if(capacity > size)
             {
-                arr[msz--] = 0;
+                arr[size--] = 0;
                 return;
             }
-            msz--;
-            int* arrq = new int[msz];
-            for (int i = 0; i < msz; i++)
+            size--;
+            int* arrq = new int[size];
+            for (int i = 0; i < size; i++)
             {
                 arrq[i] = arr[i];
             }
@@ -195,16 +242,16 @@ struct Stack
         };
         int peek()
         {
-            if (msz == 0) throw logic_error("Stack is epmty");
-            return arr[msz - 1];
+            if (size == 0) throw logic_error("Stack is epmty");
+            return arr[size - 1];
         };
-        int count()
+        int count() const
         {
-            return msz;
+            return size;
         };
-        int at(int index)
+        int at(int index) const
         {
-            if ((index < 0) || (index >= msz))
+            if ((index < 0) || (index >= size))
             {
                 throw out_of_range("Out of range At()");
             }
@@ -215,7 +262,7 @@ struct Stack
         int concat()
         {
             stringstream ss;
-            for (unsigned i = 0; i < msz; ++i)
+            for (unsigned i = 0; i < size; ++i)
                 ss << abs(arr [i]);
             int result;
             ss >> result;
@@ -223,35 +270,83 @@ struct Stack
             return result;
         };
 
-        void concatstruct(Stack* s1)
+        void concatstruct(const Stack& s1)
         {
-            for (int i = 0; i < s1->count(); i++)
-                this->push(s1->at(i));
+            for (int i = 0; i < s1.count(); i++)
+                this->push(s1.at(i));
         };
-        static Stack concatstructs(Stack* s1, Stack* s2)
+        static Stack concatstructs(const Stack& s1, const Stack& s2)
         {
             Stack concatedStack(0);
             concatedStack.concatstruct(s1);
             concatedStack.concatstruct(s2);
             return concatedStack;
         };
+
+        bool operator == (const Stack& obj) 
+        {
+            if(this->count() != obj.count()) return false;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) == obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator > (const Stack& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Stacks must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) > obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator < (const Stack& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Stacks must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) < obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator <= (const Stack& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Stacks must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) <= obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator >= (const Stack& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Stacks must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) >= obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator != (const Stack& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Stacks must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) != obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
 };
 
 struct Queue
 {
     private:
-        int bsz{ 0 };
-        int anchor { 0 };
+        int size{ 0 };
+        int capacity { 0 };
         int* arr{ nullptr };
     public:
         Queue() = default;
 
-        explicit Queue(int insz)
+        explicit Queue(int isize)
         {
-            anchor = insz;
-            arr = new int[anchor];
+            capacity = isize;
+            arr = new int[capacity];
 
-            for (int i = 0; i < anchor; i++)
+            for (int i = 0; i < capacity; i++)
             {
                 arr[i] = 0;
             }
@@ -262,14 +357,14 @@ struct Queue
         };
         void Vin()
         {
-            for (int i = 0; i < anchor; i++)
+            for (int i = 0; i < capacity; i++)
             {
                 arr[i] = rand() % 20;
             }
         };
         void Vout()
         {
-            for (int i = 0; i < bsz; i++)
+            for (int i = 0; i < size; i++)
             {
                 cout << arr[i] << " ";
             }
@@ -277,37 +372,37 @@ struct Queue
         };
         void push(int k)
         {
-            if(anchor > bsz)
+            if(capacity > size)
             {
-                arr[bsz++] = k;
+                arr[size++] = k;
                 return;
             }
-            int* arrq = new int[bsz + 1];
-            for (int i = 0; i < bsz; i++)
+            int* arrq = new int[size + 1];
+            for (int i = 0; i < size; i++)
             {
                 arrq[i] = arr[i];
             }
-            arrq[bsz] = k;
-            bsz++;
+            arrq[size] = k;
+            size++;
             delete[] arr;
             arr = arrq;
         };
         void pop()
         {
-            if (bsz == 0) throw logic_error("Queue is epmty");
-            if(anchor > bsz)
+            if (size == 0) throw logic_error("Queue is epmty");
+            if(capacity > size)
             {
-                for (int i = 0; i < bsz; ++i)
+                for (int i = 0; i < size; ++i)
                 {
                     arr[i] = arr[i+1];
                 }
-                arr[bsz] = 0;
-                bsz--;
+                arr[size] = 0;
+                size--;
                 return;
             }
-            bsz--;
-            int* arrq = new int[bsz];
-            for (int i = 0; i < bsz; i++)
+            size--;
+            int* arrq = new int[size];
+            for (int i = 0; i < size; i++)
             {
                 arrq[i] = arr[i + 1];
             }
@@ -316,16 +411,16 @@ struct Queue
         };
         int peek()
         {
-            if (bsz == 0) throw logic_error("Queue is epmty");
+            if (size == 0) throw logic_error("Queue is epmty");
             return arr[0];
         };
-        int count()
+        int count() const
         {
-            return bsz;
+            return size;
         };
-        int at(int index)
+        int at(int index) const
         {
-            if ((index < 0) || (index >= bsz))
+            if ((index < 0) || (index >= size))
             {
                 throw out_of_range("Out of range At()");
             }
@@ -336,7 +431,7 @@ struct Queue
         int concat()
         {
             stringstream ss;
-            for (unsigned i = 0; i < bsz; ++i)
+            for (unsigned i = 0; i < size; ++i)
                 ss << abs(arr [i]);
             int result;
             ss >> result;
@@ -344,17 +439,65 @@ struct Queue
             return result;
         };
 
-        void concatstruct(Queue* q1)
+        void concatstruct(const Queue& q1)
         {
-            for (int i = 0; i < q1->count(); i++)
-                this->push(q1->at(i));
+            for (int i = 0; i < q1.count(); i++)
+                this->push(q1.at(i));
         };
-        static Queue concatstructs(Queue* q1, Queue* q2)
+        static Queue concatstructs(const Queue& q1, const Queue& q2)
         {
             Queue concatedQueue(0);
             concatedQueue.concatstruct(q1);
             concatedQueue.concatstruct(q2);
             return concatedQueue;
         };
+
+        bool operator == (const Queue& obj) 
+        {
+            if(this->count() != obj.count()) return false;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) == obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator > (const Queue& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Queues must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) > obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator < (const Queue& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Queues must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) < obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator <= (const Queue& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Queues must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) <= obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator >= (const Queue& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Queues must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) >= obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
+
+        bool operator != (const Queue& obj) const
+        {
+            if(this->count() != obj.count()) throw logic_error("Queues must be of same length");;
+            int i;
+            for(i = 0; i < this->count() && this->at(i) != obj.at(i); i++);
+            return (i == this->count()) ? true : false;
+        }
 };
 #endif 
